@@ -1,0 +1,46 @@
+
+import cv2
+import matplotlib.pyplot as plt
+import numpy as np
+import urllib.request
+
+url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4fikOeote8mjCKla_BMf8kVsDweNygzThQWtIctZdgxMF2ecvm6r58nWe&s=10"
+
+request = urllib.request.Request(
+    url, headers={"User-Agent": "Mozilla/5.0"}
+)
+
+with urllib.request.urlopen(request) as response:
+    data = response.read()
+
+image = cv2.imdecode(
+    np.frombuffer(data, np.uint8), cv2.IMREAD_COLOR
+)
+
+if image is None:
+    print("Image not found")
+else:
+    # Convert to grayscale
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # Apply Gaussian Blur
+    blur_image = cv2.GaussianBlur(gray_image, (5, 5), 0)
+
+    # Apply Canny Edge Detection
+    edges = cv2.Canny(blur_image, 100, 200)
+
+    # Display images
+    plt.figure(figsize=(10, 4))
+
+    plt.subplot(1, 2, 1)
+    plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    plt.title("Original Image")
+    plt.axis("off")
+
+    plt.subplot(1, 2, 2)
+    plt.imshow(edges, cmap="gray")
+    plt.title("Canny Edge Image")
+    plt.axis("off")
+
+    plt.tight_layout()
+    plt.show()
